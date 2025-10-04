@@ -1,0 +1,35 @@
+//
+//  Config.template.xcconfig
+//  MMOBOMBSwift6
+//
+//  Created by CarlosZR on 3/10/25.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+// Config.template.xcconfig
+// Plantilla de configuración - Copiar a Config.xcconfig y personalizar
+// INSTRUCCIONES:
+// 1. Copia este archivo como Config.xcconfig
+// 2. Reemplaza los valores de ejemplo con tus datos reales
+// 3. Config.xcconfig está en .gitignore y NO se subirá al repositorio
+
+// Información del desarrollador
+DEVELOPER_NAME = Tu Nombre o Empresa
+DEVELOPMENT_TEAM = TU_TEAM_ID_AQUI
+
+// Identificadores de la aplicación
+PRODUCT_BUNDLE_IDENTIFIER = com.ejemplo.miapp
+APP_GROUP_IDENTIFIER = group.com.ejemplo.miapp
+
+// Información de copyright
+COPYRIGHT_NOTICE = Copyright © 2025 Tu Nombre. Todos los derechos reservados.
+
+// URLs y endpoints
+API_BASE_URL = https://api.example.com
+API_KEY = REEMPLAZAR_CON_TU_CLAVE
+
+// Configuraciones de compilación
+CODE_SIGN_IDENTITY = Apple Development
+CODE_SIGN_STYLE = Automatic
