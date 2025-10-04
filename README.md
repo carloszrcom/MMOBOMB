@@ -12,7 +12,6 @@ A modern iOS application built with SwiftUI and Swift 6, showcasing best practic
 - [Technologies](#-technologies)
 - [Requirements](#-requirements)
 - [Learning Resources](#-learning-resources)
-- [Architecture Patterns](#-architecture-patterns)
 - [License](#-license)
 
 ## 🎯 Overview
