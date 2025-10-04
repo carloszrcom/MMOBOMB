@@ -11,11 +11,10 @@ A modern iOS application built with SwiftUI and Swift 6, showcasing best practic
 - [Architecture](#architecture)
 - [Technologies](#technologies)
 - [Requirements](#requirements)
-- [Installation](#installation)
 - [Learning Resources](#learning-resources)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
-- [License](#license)
+- [License](#-license)
 
 ## 🎯 Overview
 
@@ -50,19 +49,19 @@ This educational project demonstrates how to build a complete iOS application th
 
 The project follows a **layered architecture** pattern with clear separation of concerns:
 
-┌─────────────────────────────────────┐
-│         Presentation Layer          │
-│    (Views, Stores, Components)      │
-├─────────────────────────────────────┤
-│          Domain Layer               │
-│      (Models, Entities)             │
-├─────────────────────────────────────┤
-│           Data Layer                │
-│  (DTOs, Mappers, Repositories)      │
-├─────────────────────────────────────┤
-│           Core Layer                │
-│  (Network, Persistence, Utils)      │
-└─────────────────────────────────────┘
+
+Presentation Layer
+(Views, Stores, Components)
+
+Domain Layer    
+(Models, Entities)  
+
+Data Layer     
+(DTOs, Mappers, Repositories)
+
+Core Layer          
+(Network, Persistence, Utils)
+
 
 ### Current Architecture Pattern: MV with Stores
 
@@ -98,7 +97,7 @@ The app uses a **Model-View pattern with Stores** (similar to MVVM but leveragin
 - macOS Sequoia 15.0 or later (for development)
 - Swift 6.2
 
-# 📚 Learning Resources
+## 📚 Learning Resources
 This project demonstrates the following iOS development concepts:
 SwiftUI Fundamentals
 
@@ -148,7 +147,7 @@ Add comments explaining complex logic
 Keep commits atomic and well-described
 Update documentation as needed
 
-📄 License
+## 📄 License
 This project is licensed under the Educational Use License.
 You are free to:
 
