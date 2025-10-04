@@ -6,14 +6,13 @@ A modern iOS application built with SwiftUI and Swift 6, showcasing best practic
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Technologies](#technologies)
-- [Requirements](#requirements)
-- [Learning Resources](#learning-resources)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
+- [Overview](#-overview)
+- [Features](#-features)
+- [Architecture](#-architecture)
+- [Technologies](#-technologies)
+- [Requirements](#-requirements)
+- [Learning Resources](#-learning-resources)
+- [Architecture Patterns](#-architecture-patterns)
 - [License](#-license)
 
 ## 🎯 Overview
@@ -133,7 +132,7 @@ Codable for JSON parsing
 Custom error handling
 API endpoint management
 
-## Architecture Patterns
+## 🏛️ Architecture Patterns
 
 Separation of concerns
 Dependency injection
