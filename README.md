@@ -6,15 +6,15 @@ A modern iOS application built with SwiftUI and Swift 6, showcasing best practic
 
 ## 📋 Table of Contents
 
-- [Overview](#-overview)
-- [Features](#-features)
+- [Overview](#overview)
+- [Features](#features)
 - [Architecture](#architecture)
-- [Technologies](#-technologies)
-- [Requirements](#-requirements)
-- [Learning Resources](#-learning-resources)
-- [License](#-license)
+- [Technologies](#technologies)
+- [Requirements](#requirements)
+- [Learning Resources](#learning-resources)
+- [License](#license)
 
-## 🎯 Overview
+## Overview
 
 This educational project demonstrates how to build a complete iOS application that fetches and displays a list of free-to-play games from the [MMOBomb API](https://www.mmobomb.com/api). The app showcases modern iOS development practices including:
 
@@ -28,7 +28,7 @@ This educational project demonstrates how to build a complete iOS application th
 
 **⚠️ Note:** This architecture is subject to change as the project evolves and incorporates new learning concepts and best practices.
 
-## ✨ Features
+## Features
 
 - 📱 **Game List**: Browse a comprehensive list of free-to-play games
 - 🔍 **Search**: Real-time search by title, genre, platform, or developer
@@ -78,7 +78,7 @@ The app uses a **Model-View pattern with Stores** (similar to MVVM but leveragin
 
 > **Note:** As the project evolves, the architecture may transition to other patterns (e.g., The Composable Architecture, Redux-like, etc.) for educational purposes.
 
-## 🛠️ Technologies
+## Technologies
 
 - **Language**: Swift 6.2
 - **UI Framework**: SwiftUI
@@ -88,14 +88,14 @@ The app uses a **Model-View pattern with Stores** (similar to MVVM but leveragin
 - **Concurrency**: Swift Concurrency (async/await, actors, @MainActor)
 - **Architecture**: MV with Stores (subject to change)
 
-## 📱 Requirements
+## Requirements
 
 - Xcode 16.0 or later
 - iOS 18.0 or later
 - macOS Sequoia 15.0 or later (for development)
 - Swift 6.2
 
-## 📚 Learning Resources
+## Learning Resources
 This project demonstrates the following iOS development concepts:
 SwiftUI Fundamentals
 
@@ -131,7 +131,7 @@ Codable for JSON parsing
 Custom error handling
 API endpoint management
 
-## 🏛️ Architecture Patterns
+## Architecture Patterns
 
 Separation of concerns
 Dependency injection
@@ -145,7 +145,7 @@ Add comments explaining complex logic
 Keep commits atomic and well-described
 Update documentation as needed
 
-## 📄 License
+## License
 This project is licensed under the Educational Use License.
 You are free to:
 
@@ -183,7 +183,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 MMOBomb API for providing the free-to-play games data
 Apple's SwiftUI and Swift documentation
