@@ -1,6 +1,6 @@
 # MMOBOMB iOS App - Educational Project
 
-<img width="533" height="800" alt="swiftui-architecture" src="https://github.com/user-attachments/assets/7182f1e8-2992-4730-a1b3-a144ef7ceda7" />
+<img width="400" height="600" alt="swiftui-architecture" src="https://github.com/user-attachments/assets/f238375b-b683-4b7b-88c2-36f2da49b099" />
 
 A modern iOS application built with SwiftUI and Swift 6, showcasing best practices for iOS development. This project demonstrates a scalable architecture for building production-ready apps while serving as an educational resource for iOS developers.
 
