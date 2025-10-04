@@ -8,7 +8,7 @@ A modern iOS application built with SwiftUI and Swift 6, showcasing best practic
 
 - [Overview](#-overview)
 - [Features](#-features)
-- [Architecture](#-architecture)
+- [Architecture](#architecture)
 - [Technologies](#-technologies)
 - [Requirements](#-requirements)
 - [Learning Resources](#-learning-resources)
@@ -43,7 +43,7 @@ This educational project demonstrates how to build a complete iOS application th
 - 🎨 **Modern UI**: Clean, native iOS design following Apple's HIG
 - ⚡ **Performance**: Efficient image loading and data management
 
-## 🏗️ Architecture
+## Architecture
 
 The project follows a **layered architecture** pattern with clear separation of concerns:
 
