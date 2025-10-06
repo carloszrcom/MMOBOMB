@@ -87,31 +87,44 @@ struct GameDetailView: View {
     
     @ViewBuilder
     private func gameDetailContent(_ gameDetail: GameDetail, store: GameDetailStore) -> some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                // Cabecera con imagen principal
-                GameHeaderView(
-                    thumbnailUrl: gameDetail.thumbnail,
-                    title: gameDetail.title
-                )
-                
-                // Información del juego
-                GameInfoView(gameDetail: gameDetail)
-                
-                // Screenshots si existen
-                if !gameDetail.screenshots.isEmpty {
-                    ScreenshotsView(screenshots: gameDetail.screenshots)
-                        .padding(.vertical)
+        GeometryReader { geometry in
+            ScrollView {
+                LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                    // Sección para la imagen sticky
+                    Section {
+                        // Contenido principal con márgenes laterales
+                        VStack(spacing: 0) {
+                            // Información del juego
+                            GameInfoView(gameDetail: gameDetail)
+                                .padding(.horizontal)
+                            
+                            // Screenshots si existen
+                            if !gameDetail.screenshots.isEmpty {
+                                ScreenshotsView(screenshots: gameDetail.screenshots)
+                                    .padding(.vertical)
+                                    .padding(.horizontal)
+                            }
+                            
+                            // Requisitos del sistema si existen
+                            if let requirements = gameDetail.minimumSystemRequirements {
+                                RequirementsView(requirements: requirements)
+                                    .padding(.horizontal)
+                            }
+                            
+                            // Espaciado final
+                            Spacer(minLength: 20)
+                        }
+                        .background(Color(.systemBackground))
+                    } header: {
+                        // Header sticky con imagen
+                        stretchyHeaderView(
+                            gameDetail: gameDetail,
+                            geometry: geometry
+                        )
+                    }
                 }
-                
-                // Requisitos del sistema si existen
-                if let requirements = gameDetail.minimumSystemRequirements {
-                    RequirementsView(requirements: requirements)
-                }
-                
-                // Espaciado final
-                Spacer(minLength: 20)
             }
+            .coordinateSpace(name: "scroll")
         }
         .ignoresSafeArea(edges: .top)
         .refreshable {
@@ -119,16 +132,69 @@ struct GameDetailView: View {
             await store.refresh(id: gameId)
         }
     }
+    
+    
+    // MARK: - Stretchy Header
+    
+    @ViewBuilder
+    private func stretchyHeaderView(gameDetail: GameDetail, geometry: GeometryProxy) -> some View {
+        GeometryReader { headerGeometry in
+            let minY = headerGeometry.frame(in: .named("scroll")).minY
+            let baseHeight: CGFloat = 250
+            
+            // Calculamos la altura ajustada para el efecto stretchy
+            let (adjustedHeight, yOffset): (CGFloat, CGFloat) = {
+                if minY > 0 {
+                    // Si arrastramos hacia abajo (minY positivo), estiramos la imagen
+                    return (baseHeight + minY, -minY)
+                } else {
+                    // Si hacemos scroll hacia arriba (minY negativo), mantenemos altura base
+                    return (baseHeight, 0)
+                }
+            }()
+            
+            ZStack(alignment: .bottomLeading) {
+                // Imagen de fondo con efecto stretchy
+                AsyncImageView(url: gameDetail.thumbnail, placeholderSize: 80)
+                    .aspectRatio(contentMode: .fill) // Importante: fill para que se estire correctamente
+                    .frame(
+                        width: geometry.size.width,
+                        height: adjustedHeight
+                    )
+                    .clipped()
+                    .offset(y: yOffset)
+                
+                // Gradiente para mejorar la legibilidad del título
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.7)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(width: geometry.size.width, height: adjustedHeight)
+                .offset(y: yOffset)
+                
+                // Título del juego sobre el gradiente
+                Text(gameDetail.title)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .offset(y: min(yOffset, 0)) // El título se mantiene visible
+            }
+        }
+        .frame(height: 250)
+    }
 }
 
-//// MARK: - Preview
-//
-//#Preview {
-//    let container = PersistenceManager.preview
-//    let repository = GameRepositoryImpl(modelContext: container.mainContext)
-//    
-//    return NavigationStack {
-//        GameDetailView(gameId: 452)
-//            .environment(repository)
-//    }
-//}
+// MARK: - Preview
+
+#Preview {
+    let container = PersistenceManager.preview
+    let repository = GameRepositoryImpl(modelContext: container.mainContext)
+    
+    return NavigationStack {
+        GameDetailView(gameId: 452)
+            .environment(repository)
+    }
+}
