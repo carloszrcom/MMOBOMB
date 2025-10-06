@@ -9,29 +9,35 @@ import SwiftUI
 import SwiftData
 
 /// Punto de entrada principal de la aplicación
-/// Configura SwiftData y el contenedor de la app
+/// Configura SwiftData y el repositorio compartido usando arquitectura MV-R
 @main
 struct MMOBOMBSwift6App: App {
     
     // MARK: - Properties
     
     /// Contenedor de SwiftData para la persistencia
-    /// Se configura con los modelos que vamos a persistir
     let modelContainer: ModelContainer
+    
+    /// Repositorio compartido inyectado globalmente via Environment
+    /// Usamos la clase concreta directamente (recomendación de Apple)
+    private let gameRepository: GameRepositoryImpl
     
     // MARK: - Initialization
     
     init() {
         do {
             // Configuramos el contenedor con todos los modelos que queremos persistir
-            // SwiftData creará automáticamente el esquema de base de datos
             modelContainer = try ModelContainer(
                 for: GameEntity.self,
                      GameDetailEntity.self
             )
+            
+            // Creamos el repositorio UNA SOLA VEZ con el contexto de SwiftData
+            // Este repositorio será compartido por toda la aplicación
+            gameRepository = GameRepositoryImpl(modelContext: modelContainer.mainContext)
+            
         } catch {
             // Si falla la configuración, terminamos la app
-            // En producción esto no debería ocurrir
             fatalError("No se pudo configurar SwiftData: \(error.localizedDescription)")
         }
     }
@@ -40,10 +46,11 @@ struct MMOBOMBSwift6App: App {
     
     var body: some Scene {
         WindowGroup {
-            // Inyectamos el contenedor de SwiftData en toda la jerarquía de vistas
-            // Esto permite acceder al contexto desde cualquier vista
+            // Inyectamos el repositorio concreto en el environment
+            // Todas las vistas hijas podrán acceder a él
             GamesListView()
                 .modelContainer(modelContainer)
+                .environment(gameRepository)
         }
     }
 }
