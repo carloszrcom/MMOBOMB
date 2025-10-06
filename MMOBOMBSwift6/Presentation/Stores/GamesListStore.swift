@@ -12,6 +12,7 @@ import Observation
 /// Store que gestiona el estado y lógica del listado de juegos
 /// @Observable hace que SwiftUI detecte automáticamente cambios
 /// @MainActor garantiza que todas las operaciones se ejecuten en el hilo principal
+/// Este store es LOCAL a la vista y se crea/destruye con ella
 @MainActor
 @Observable
 final class GamesListStore {
@@ -32,8 +33,9 @@ final class GamesListStore {
     
     // MARK: - Dependencies
     
-    /// Repositorio para obtener los juegos
-    private let repository: GameRepository
+    /// Repositorio para obtener los juegos (inyectado desde el Environment)
+    /// Usamos la implementación concreta directamente
+    private let repository: GameRepositoryImpl
     
     // MARK: - Computed Properties
     
@@ -59,7 +61,9 @@ final class GamesListStore {
     
     // MARK: - Initialization
     
-    init(repository: GameRepository) {
+    /// Inicializa el store con el repositorio compartido
+    /// - Parameter repository: Repositorio inyectado desde el Environment
+    init(repository: GameRepositoryImpl) {
         self.repository = repository
     }
     

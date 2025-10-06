@@ -10,17 +10,19 @@ import SwiftData
 
 /// Vista principal que muestra el listado de juegos
 /// Incluye búsqueda, pull-to-refresh y navegación a detalles
+/// Usa arquitectura MV-R: obtiene el Repository del Environment y crea su Store local
 struct GamesListView: View {
     
     // MARK: - Environment
     
-    /// Contexto de SwiftData para pasarlo al repositorio
-    @Environment(\.modelContext) private var modelContext
+    /// Repositorio concreto inyectado globalmente desde el App
+    /// Este es compartido por toda la aplicación
+    @Environment(GameRepositoryImpl.self) private var repository
     
     // MARK: - State
     
-    /// Store que gestiona el estado del listado
-    /// Se inicializa con el repositorio que tiene acceso a SwiftData
+    /// Store LOCAL de esta vista
+    /// Se crea cuando la vista aparece y se destruye cuando desaparece
     @State private var store: GamesListStore?
     
     // MARK: - Body
@@ -39,10 +41,10 @@ struct GamesListView: View {
             .navigationBarTitleDisplayMode(.large)
         }
         .task {
-            // Inicializamos el store con el contexto de SwiftData
+            // Inicializamos el store LOCAL con el repositorio del Environment
             // Esto solo ocurre una vez cuando la vista aparece
             if store == nil {
-                let repository = GameRepositoryImpl(modelContext: modelContext)
+                // Creamos el store local inyectándole el repositorio compartido
                 store = GamesListStore(repository: repository)
                 
                 // Cargamos los juegos inicialmente
@@ -122,6 +124,7 @@ struct GamesListView: View {
             }
             .navigationDestination(for: Int.self) { gameId in
                 // Navegación a la vista de detalles
+                // GameDetailView creará su PROPIO store local
                 GameDetailView(gameId: gameId)
             }
         }
@@ -131,6 +134,11 @@ struct GamesListView: View {
 // MARK: - Preview
 
 #Preview {
-    GamesListView()
-        .modelContainer(for: [GameEntity.self, GameDetailEntity.self])
+    // Para preview, usamos el repositorio del preview container
+    let container = PersistenceManager.preview
+    let repository = GameRepositoryImpl(modelContext: container.mainContext)
+    
+    return GamesListView()
+        .modelContainer(container)
+        .environment(repository)
 }

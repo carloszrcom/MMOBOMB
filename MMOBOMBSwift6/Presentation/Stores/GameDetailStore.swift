@@ -9,6 +9,7 @@ import Foundation
 import Observation
 
 /// Store que gestiona el estado y lógica de los detalles de un juego
+/// Este store es LOCAL a la vista de detalles
 @MainActor
 @Observable
 final class GameDetailStore {
@@ -26,7 +27,9 @@ final class GameDetailStore {
     
     // MARK: - Dependencies
     
-    private let repository: GameRepository
+    /// Repositorio inyectado desde el Environment
+    /// Usamos la implementación concreta directamente
+    private let repository: GameRepositoryImpl
     
     // MARK: - Computed Properties
     
@@ -36,7 +39,9 @@ final class GameDetailStore {
     
     // MARK: - Initialization
     
-    init(repository: GameRepository) {
+    /// Inicializa el store con el repositorio compartido
+    /// - Parameter repository: Repositorio inyectado desde el Environment
+    init(repository: GameRepositoryImpl) {
         self.repository = repository
     }
     

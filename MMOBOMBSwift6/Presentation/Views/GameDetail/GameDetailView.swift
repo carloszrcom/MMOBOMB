@@ -10,11 +10,13 @@ import SwiftData
 
 /// Vista de detalles completos de un juego
 /// Muestra toda la información disponible incluyendo screenshots y requisitos
+/// Usa arquitectura MV-R: obtiene el Repository del Environment y crea su Store local
 struct GameDetailView: View {
     
     // MARK: - Environment
     
-    @Environment(\.modelContext) private var modelContext
+    /// Repositorio concreto inyectado globalmente desde el App
+    @Environment(GameRepositoryImpl.self) private var repository
     
     // MARK: - Properties
     
@@ -23,7 +25,8 @@ struct GameDetailView: View {
     
     // MARK: - State
     
-    /// Store que gestiona el estado de los detalles
+    /// Store LOCAL de esta vista
+    /// Se crea cuando la vista aparece y se destruye cuando desaparece
     @State private var store: GameDetailStore?
     
     // MARK: - Body
@@ -38,9 +41,9 @@ struct GameDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            // Inicializamos el store si no existe
+            // Inicializamos el store LOCAL si no existe
             if store == nil {
-                let repository = GameRepositoryImpl(modelContext: modelContext)
+                // Creamos el store local inyectándole el repositorio compartido
                 let newStore = GameDetailStore(repository: repository)
                 store = newStore
                 
@@ -68,7 +71,7 @@ struct GameDetailView: View {
             
         } else if let gameDetail = store.gameDetail {
             // Mostramos los detalles del juego
-            gameDetailContent(gameDetail)
+            gameDetailContent(gameDetail, store: store)
             
         } else {
             // Estado inesperado
@@ -83,7 +86,7 @@ struct GameDetailView: View {
     // MARK: - Game Detail Content
     
     @ViewBuilder
-    private func gameDetailContent(_ gameDetail: GameDetail) -> some View {
+    private func gameDetailContent(_ gameDetail: GameDetail, store: GameDetailStore) -> some View {
         ScrollView {
             VStack(spacing: 0) {
                 // Cabecera con imagen principal
@@ -113,16 +116,19 @@ struct GameDetailView: View {
         .ignoresSafeArea(edges: .top)
         .refreshable {
             // Pull to refresh
-            await store?.refresh(id: gameId)
+            await store.refresh(id: gameId)
         }
     }
 }
 
-// MARK: - Preview
-
-#Preview {
-    NavigationStack {
-        GameDetailView(gameId: 452)
-            .modelContainer(for: [GameEntity.self, GameDetailEntity.self])
-    }
-}
+//// MARK: - Preview
+//
+//#Preview {
+//    let container = PersistenceManager.preview
+//    let repository = GameRepositoryImpl(modelContext: container.mainContext)
+//    
+//    return NavigationStack {
+//        GameDetailView(gameId: 452)
+//            .environment(repository)
+//    }
+//}
