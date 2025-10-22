@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Observation
 
 /// Store que gestiona el estado y lógica de los detalles de un juego
 /// Este store es LOCAL a la vista de detalles

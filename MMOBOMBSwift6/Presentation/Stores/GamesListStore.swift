@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftData
-import Observation
 
 /// Store que gestiona el estado y lógica del listado de juegos
 /// @Observable hace que SwiftUI detecte automáticamente cambios
@@ -95,12 +94,12 @@ final class GamesListStore {
         isLoading = false
     }
     
-    /// Refresca la lista de juegos desde la API
+    /// Refresh the list of games from the API
     func refresh() async {
         await loadGames(forceRefresh: true)
     }
     
-    /// Limpia el error actual
+    /// Clear the current error
     func clearError() {
         errorMessage = nil
     }

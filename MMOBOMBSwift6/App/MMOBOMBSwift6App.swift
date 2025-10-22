@@ -38,7 +38,7 @@ struct MMOBOMBSwift6App: App {
             
         } catch {
             // Si falla la configuración, terminamos la app
-            fatalError("No se pudo configurar SwiftData: \(error.localizedDescription)")
+            fatalError(">> Error. SwiftData could not be configured: \(error.localizedDescription)")
         }
     }
     
@@ -48,7 +48,7 @@ struct MMOBOMBSwift6App: App {
         WindowGroup {
             // Inyectamos el repositorio concreto en el environment
             // Todas las vistas hijas podrán acceder a él
-            GamesListView()
+            MMOBOMBTabView()
                 .modelContainer(modelContainer)
                 .environment(gameRepository)
         }

@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftData
-import Observation
 
 /// Implementación del repositorio de juegos
 /// Gestiona la obtención de datos desde API y cache local (SwiftData)

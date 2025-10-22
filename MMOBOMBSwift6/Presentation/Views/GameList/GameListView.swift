@@ -8,15 +8,15 @@
 import SwiftUI
 import SwiftData
 
-/// Vista principal que muestra el listado de juegos
-/// Incluye búsqueda, pull-to-refresh y navegación a detalles
-/// Usa arquitectura MV-R: obtiene el Repository del Environment y crea su Store local
+/// Main view showing the list of games
+/// Includes search, pull-to-refresh, and navigation to details
+/// Uses MV-R architecture: obtains the Repository from the Environment and creates its local Store
 struct GamesListView: View {
     
     // MARK: - Environment
     
-    /// Repositorio concreto inyectado globalmente desde el App
-    /// Este es compartido por toda la aplicación
+    /// Specific repository injected globally from the App
+    /// This is shared by the entire application
     @Environment(GameRepositoryImpl.self) private var repository
     
     // MARK: - State
