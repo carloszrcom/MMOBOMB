@@ -376,3 +376,7 @@ ContentView
 - .environment() para compartir routers modales
 
 
+## Stores
+
+
+

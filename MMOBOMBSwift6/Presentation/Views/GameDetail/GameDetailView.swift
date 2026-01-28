@@ -15,8 +15,9 @@ struct GameDetailView: View {
     
     // MARK: - Environment
     
-    /// Repositorio concreto inyectado globalmente desde el App
-    @Environment(GameRepositoryImpl.self) private var repository
+    /// Repositorio PROTOCOLO inyectado globalmente desde el App
+    /// MEJORA: Usamos el protocolo en lugar de la implementación concreta
+    @Environment(\.gameRepository) private var repository
     
     // MARK: - Properties
     
@@ -42,8 +43,8 @@ struct GameDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task {
             // Inicializamos el store LOCAL si no existe
-            if store == nil {
-                // Creamos el store local inyectándole el repositorio compartido
+            if store == nil, let repository = repository {
+                // Creamos el store local inyectándole el repositorio (protocolo)
                 let newStore = GameDetailStore(repository: repository)
                 store = newStore
                 
@@ -61,9 +62,12 @@ struct GameDetailView: View {
             // Mostramos loading mientras carga
             LoadingView(message: "Cargando detalles...")
             
-        } else if let error = store.errorMessage {
-            // Mostramos error si falla la carga
-            ErrorView(message: error) {
+        } else if let error = store.error {
+            // Mostramos error si falla la carga con sugerencia de recuperación
+            ErrorView(
+                message: error.errorDescription ?? "Error desconocido",
+                recovery: error.recoverySuggestion
+            ) {
                 Task {
                     await store.refresh(id: gameId)
                 }
@@ -189,12 +193,14 @@ struct GameDetailView: View {
 
 // MARK: - Preview
 
-#Preview {
-    let container = PersistenceManager.preview
-    let repository = GameRepositoryImpl(modelContext: container.mainContext)
-    
-    return NavigationStack {
-        GameDetailView(gameId: 452)
-            .environment(repository)
-    }
-}
+//#Preview {
+//    @Previewable @State var container = PersistenceManager.preview
+//    @Previewable @State var repository: GameRepositoryProtocol = GameRepositoryImpl(
+//        modelContext: container.mainContext
+//    )
+//    
+//    NavigationStack {
+//        GameDetailView(gameId: 452)
+//            .gameRepository(repository)
+//    }
+//}

@@ -10,7 +10,8 @@ import Foundation
 /// Protocolo que define las operaciones del repositorio de juegos
 /// Permite inyectar implementaciones mock para testing
 /// Al estar en Domain, no depende de detalles de implementación (Data layer)
-protocol GameRepositoryProtocol {
+/// Sendable para poder ser usado de forma segura en contextos concurrentes
+protocol GameRepositoryProtocol: Sendable {
     
     /// Obtiene el listado completo de juegos
     /// Primero intenta desde cache, si no hay o está expirado, obtiene de la API

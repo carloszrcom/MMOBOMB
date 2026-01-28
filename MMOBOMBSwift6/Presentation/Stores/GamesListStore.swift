@@ -7,25 +7,17 @@
 
 import Foundation
 import SwiftData
+import OSLog
 
 /// Store que gestiona el estado y lógica del listado de juegos
+/// Hereda de BaseStore para reutilizar funcionalidad común
 /// @Observable hace que SwiftUI detecte automáticamente cambios
 /// @MainActor garantiza que todas las operaciones se ejecuten en el hilo principal
-/// Este store es LOCAL a la vista y se crea/destruye con ella
 @MainActor
 @Observable
-final class GamesListStore {
+final class GamesListStore: BaseStore<[Game]> {
     
-    // MARK: - Published State
-    
-    /// Lista de juegos a mostrar
-    private(set) var games: [Game] = []
-    
-    /// Indica si se está cargando información
-    private(set) var isLoading = false
-    
-    /// Error actual si lo hay
-    private(set) var errorMessage: String?
+    // MARK: - Properties
     
     /// Texto de búsqueda del usuario
     var searchText = ""
@@ -33,13 +25,15 @@ final class GamesListStore {
     // MARK: - Dependencies
     
     /// Repositorio para obtener los juegos (inyectado desde el Environment)
-    /// Usamos la implementación concreta directamente
-    private let repository: GameRepositoryImpl
+    /// Usamos el PROTOCOLO para desacoplamiento (no la implementación concreta)
+    private let repository: GameRepositoryProtocol
     
     // MARK: - Computed Properties
     
     /// Juegos filtrados según el texto de búsqueda
     var filteredGames: [Game] {
+        guard let games = data else { return [] }
+        
         if searchText.isEmpty {
             return games
         }
@@ -53,17 +47,31 @@ final class GamesListStore {
         }
     }
     
-    /// Indica si hay un error activo
-    var hasError: Bool {
-        errorMessage != nil
+    /// Alias para compatibilidad con código existente
+    var games: [Game] {
+        data ?? []
     }
     
     // MARK: - Initialization
     
     /// Inicializa el store con el repositorio compartido
-    /// - Parameter repository: Repositorio inyectado desde el Environment
-    init(repository: GameRepositoryImpl) {
+    /// - Parameter repository: Repositorio inyectado desde el Environment (PROTOCOLO)
+    init(repository: GameRepositoryProtocol) {
         self.repository = repository
+        super.init()
+        Logger.store.info("GamesListStore initialized")
+    }
+    
+    // MARK: - Override Methods
+    
+    /// Carga la lista de juegos
+    override func load() async {
+        await loadGames(forceRefresh: false)
+    }
+    
+    /// Refresca la lista de juegos
+    override func refresh() async {
+        await loadGames(forceRefresh: true)
     }
     
     // MARK: - Public Methods
@@ -72,35 +80,30 @@ final class GamesListStore {
     /// - Parameter forceRefresh: Si es true, ignora el cache y obtiene datos frescos
     func loadGames(forceRefresh: Bool = false) async {
         // Si ya estamos cargando, no hacemos nada
-        guard !isLoading else { return }
+        guard !isLoading else {
+            Logger.store.debug("Already loading games, skipping")
+            return
+        }
         
-        isLoading = true
-        errorMessage = nil
+        Logger.store.info("Loading games (forceRefresh: \(forceRefresh))")
+        setLoading(true)
         
         do {
             // Obtenemos los juegos del repositorio
-            games = try await repository.fetchGames(forceRefresh: forceRefresh)
+            let fetchedGames = try await repository.fetchGames(forceRefresh: forceRefresh)
             
-            // Si no hay juegos, mostramos un mensaje
-            if games.isEmpty {
-                errorMessage = "No se encontraron juegos"
+            // Si no hay juegos, establecemos un error
+            if fetchedGames.isEmpty {
+                setError(AppError.notFound)
+                Logger.store.warning("No games found")
+            } else {
+                setData(fetchedGames)
+                Logger.store.info("Successfully loaded \(fetchedGames.count) games")
             }
         } catch {
-            // Si hay error, guardamos el mensaje
-            errorMessage = error.localizedDescription
-            print("❌ Error cargando juegos: \(error)")
+            // Si hay error, lo establecemos
+            setError(error)
         }
-        
-        isLoading = false
-    }
-    
-    /// Refresh the list of games from the API
-    func refresh() async {
-        await loadGames(forceRefresh: true)
-    }
-    
-    /// Clear the current error
-    func clearError() {
-        errorMessage = nil
     }
 }
+

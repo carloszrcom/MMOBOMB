@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// Vista de error reutilizable
-/// Muestra un mensaje de error con opción de reintentar
+/// Muestra un mensaje de error con opción de reintentar y sugerencia de recuperación
 struct ErrorView: View {
     
     // MARK: - Properties
@@ -16,8 +16,24 @@ struct ErrorView: View {
     /// Mensaje de error a mostrar
     let message: String
     
+    /// Sugerencia de recuperación (opcional)
+    let recovery: String?
+    
     /// Acción a ejecutar al pulsar "Reintentar"
     let retryAction: () -> Void
+    
+    // MARK: - Initialization
+    
+    /// Inicializador con sugerencia de recuperación opcional
+    init(
+        message: String,
+        recovery: String? = nil,
+        retryAction: @escaping () -> Void
+    ) {
+        self.message = message
+        self.recovery = recovery
+        self.retryAction = retryAction
+    }
     
     // MARK: - Body
     
@@ -35,9 +51,19 @@ struct ErrorView: View {
             
             Text(message)
                 .font(.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
+            
+            // Sugerencia de recuperación si existe
+            if let recovery = recovery {
+                Text(recovery)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                    .padding(.top, -10)
+            }
             
             // Botón de reintentar
             Button(action: retryAction) {
@@ -51,3 +77,21 @@ struct ErrorView: View {
         .padding()
     }
 }
+// MARK: - Preview
+
+#Preview("Error simple") {
+    ErrorView(message: "No se pudo conectar al servidor") {
+        print("Retry tapped")
+    }
+}
+
+#Preview("Error con sugerencia") {
+    ErrorView(
+        message: "Error de conexión",
+        recovery: "Verifica tu conexión a internet e inténtalo de nuevo"
+    ) {
+        print("Retry tapped")
+    }
+}
+
+

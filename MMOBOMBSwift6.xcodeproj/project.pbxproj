@@ -10,9 +10,23 @@
 		C91F64A42E8FBCBF006FB291 /* MMOBOMBSwift6.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MMOBOMBSwift6.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C9CB32EB2F26B796004485F5 /* Exceptions for "MMOBOMBSwift6" folder in "MMOBOMBSwift6" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resources/Config.template.xcconfig,
+				Resources/Config.xcconfig,
+			);
+			target = C91F64A32E8FBCBF006FB291 /* MMOBOMBSwift6 */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C91F64A62E8FBCBF006FB291 /* MMOBOMBSwift6 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C9CB32EB2F26B796004485F5 /* Exceptions for "MMOBOMBSwift6" folder in "MMOBOMBSwift6" target */,
+			);
 			path = MMOBOMBSwift6;
 			sourceTree = "<group>";
 		};
@@ -78,7 +92,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2600;
-				LastUpgradeCheck = 2600;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					C91F64A32E8FBCBF006FB291 = {
 						CreatedOnToolsVersion = 26.0.1;
@@ -188,6 +202,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -249,6 +264,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};

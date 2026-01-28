@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
 
 /// Main view showing the list of games
 /// Includes search, pull-to-refresh, and navigation to details
@@ -15,9 +16,9 @@ struct GamesListView: View {
     
     // MARK: - Environment
     
-    /// Specific repository injected globally from the App
-    /// This is shared by the entire application
-    @Environment(GameRepositoryImpl.self) private var repository
+    /// Repositorio PROTOCOLO inyectado globalmente desde el App
+    /// MEJORA: Usamos el protocolo en lugar de la implementación concreta
+    @Environment(\.gameRepository) private var repository
     
     // MARK: - State
     
@@ -43,8 +44,10 @@ struct GamesListView: View {
         .task {
             // Inicializamos el store LOCAL con el repositorio del Environment
             // Esto solo ocurre una vez cuando la vista aparece
-            if store == nil {
-                // Creamos el store local inyectándole el repositorio compartido
+            if store == nil, let repository = repository {
+                Logger.ui.info("Initializing GamesListView store")
+                
+                // Creamos el store local inyectándole el repositorio (protocolo)
                 store = GamesListStore(repository: repository)
                 
                 // Cargamos los juegos inicialmente
@@ -93,6 +96,9 @@ struct GamesListView: View {
             if let errorMessage = store.errorMessage {
                 Text(errorMessage)
             }
+            if let recovery = store.recoverySuggestion {
+                Text(recovery)
+            }
         }
     }
     
@@ -133,12 +139,14 @@ struct GamesListView: View {
 
 // MARK: - Preview
 
-#Preview {
-    // Para preview, usamos el repositorio del preview container
-    let container = PersistenceManager.preview
-    let repository = GameRepositoryImpl(modelContext: container.mainContext)
-    
-    return GamesListView()
-        .modelContainer(container)
-        .environment(repository)
-}
+//#Preview {
+//    @Previewable @State var container = PersistenceManager.preview
+//    @Previewable @State var repository: GameRepositoryProtocol = GameRepositoryImpl(
+//        modelContext: container.mainContext
+//    )
+//    
+//    GamesListView()
+//        .modelContainer(container)
+//        .gameRepository(repository)
+//}
+

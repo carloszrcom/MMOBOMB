@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
 
 /// Punto de entrada principal de la aplicación
 /// Configura SwiftData y el repositorio compartido usando arquitectura MV-R
@@ -19,12 +20,15 @@ struct MMOBOMBSwift6App: App {
     let modelContainer: ModelContainer
     
     /// Repositorio compartido inyectado globalmente via Environment
-    /// Usamos la clase concreta directamente (recomendación de Apple)
-    private let gameRepository: GameRepositoryImpl
+    /// IMPORTANTE: Usamos el PROTOCOLO (no la implementación concreta)
+    /// Esto permite inyectar mocks en tests y cumple con SOLID
+    private let gameRepository: GameRepositoryProtocol
     
     // MARK: - Initialization
     
     init() {
+        Logger.ui.info("Initializing MMOBOMBSwift6 App")
+        
         do {
             // Configuramos el contenedor con todos los modelos que queremos persistir
             modelContainer = try ModelContainer(
@@ -32,12 +36,17 @@ struct MMOBOMBSwift6App: App {
                      GameDetailEntity.self
             )
             
-            // Creamos el repositorio UNA SOLA VEZ con el contexto de SwiftData
-            // Este repositorio será compartido por toda la aplicación
-            gameRepository = GameRepositoryImpl(modelContext: modelContainer.mainContext)
+            // Creamos la implementación concreta del repositorio
+            let repositoryImpl = GameRepositoryImpl(modelContext: modelContainer.mainContext)
+            
+            // Asignamos al protocolo para inyección de dependencias
+            gameRepository = repositoryImpl
+            
+            Logger.ui.info("App initialized successfully")
             
         } catch {
             // Si falla la configuración, terminamos la app
+            Logger.ui.fault("SwiftData could not be configured: \(error.localizedDescription)")
             fatalError(">> Error. SwiftData could not be configured: \(error.localizedDescription)")
         }
     }
@@ -46,11 +55,14 @@ struct MMOBOMBSwift6App: App {
     
     var body: some Scene {
         WindowGroup {
-            // Inyectamos el repositorio concreto en el environment
-            // Todas las vistas hijas podrán acceder a él
+            // Inyectamos el repositorio como PROTOCOLO usando el modificador personalizado
+            // Todas las vistas hijas podrán acceder a él con @Environment(\.gameRepository)
             MMOBOMBTabView()
                 .modelContainer(modelContainer)
-                .environment(gameRepository)
+                .gameRepository(gameRepository)
+                .onAppear {
+                    Logger.ui.info("Main view appeared")
+                }
         }
     }
 }
