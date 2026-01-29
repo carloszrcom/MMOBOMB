@@ -12,9 +12,10 @@ import OSLog
 /// Implementación del repositorio de juegos
 /// Gestiona la obtención de datos desde API y cache local (SwiftData)
 /// @Observable permite inyectarlo en el Environment de SwiftUI
-/// Sendable para cumplir con Swift 6 concurrency
+/// @MainActor garantiza que todas las operaciones con ModelContext sean thread-safe
 @Observable
-final class GameRepositoryImpl: GameRepositoryProtocol, @unchecked Sendable {
+@MainActor
+final class GameRepositoryImpl: GameRepositoryProtocol {
     
     // MARK: - Properties
     
@@ -33,7 +34,7 @@ final class GameRepositoryImpl: GameRepositoryProtocol, @unchecked Sendable {
     
     // MARK: - Public Methods
     
-    func fetchGames(forceRefresh: Bool = false) async throws -> [Game] {
+    func fetchGames(forceRefresh: Bool = false) async throws(AppError) -> [Game] {
         Logger.store.info("Fetching games (forceRefresh: \(forceRefresh))")
         
         // Si no forzamos refresh, intentamos obtener desde cache
@@ -59,7 +60,7 @@ final class GameRepositoryImpl: GameRepositoryProtocol, @unchecked Sendable {
             Logger.store.info("Successfully fetched \(games.count) games from API")
             
             // Guardamos en cache para futuras consultas
-            await saveGamesToCache(games)
+            saveGamesToCache(games)
             
             return games
         } catch {
@@ -68,7 +69,7 @@ final class GameRepositoryImpl: GameRepositoryProtocol, @unchecked Sendable {
         }
     }
     
-    func fetchGameDetail(id: Int, forceRefresh: Bool = false) async throws -> GameDetail {
+    func fetchGameDetail(id: Int, forceRefresh: Bool = false) async throws(AppError) -> GameDetail {
         Logger.store.info("Fetching game detail for id: \(id) (forceRefresh: \(forceRefresh))")
         
         // Intentamos obtener desde cache si no forzamos refresh
@@ -92,7 +93,7 @@ final class GameRepositoryImpl: GameRepositoryProtocol, @unchecked Sendable {
             Logger.store.info("Successfully fetched game detail for id: \(id)")
             
             // Guardamos en cache
-            await saveGameDetailToCache(detail)
+            saveGameDetailToCache(detail)
             
             return detail
         } catch {
@@ -104,7 +105,7 @@ final class GameRepositoryImpl: GameRepositoryProtocol, @unchecked Sendable {
     // MARK: - Private Cache Methods
     
     /// Obtiene juegos desde el cache de SwiftData
-    private func fetchGamesFromCache() throws -> [GameEntity] {
+    private func fetchGamesFromCache() throws(AppError) -> [GameEntity] {
         let descriptor = FetchDescriptor<GameEntity>(
             sortBy: [SortDescriptor(\.title)]
         )
@@ -118,7 +119,7 @@ final class GameRepositoryImpl: GameRepositoryProtocol, @unchecked Sendable {
     }
     
     /// Obtiene detalle de un juego desde cache
-    private func fetchGameDetailFromCache(id: Int) throws -> GameDetailEntity? {
+    private func fetchGameDetailFromCache(id: Int) throws(AppError) -> GameDetailEntity? {
         // Capturamos el id en una variable local para usarlo en el predicado
         let gameId = id
         
@@ -138,8 +139,7 @@ final class GameRepositoryImpl: GameRepositoryProtocol, @unchecked Sendable {
     
     /// Guarda juegos en cache usando estrategia de upsert (actualizar o insertar)
     /// Mejora: NO borra todo el cache, solo actualiza lo necesario
-    @MainActor
-    private func saveGamesToCache(_ games: [Game]) async {
+    private func saveGamesToCache(_ games: [Game]) {
         Logger.database.info("Saving \(games.count) games to cache")
         
         for game in games {
@@ -186,8 +186,7 @@ final class GameRepositoryImpl: GameRepositoryProtocol, @unchecked Sendable {
     }
     
     /// Guarda detalle de juego en cache
-    @MainActor
-    private func saveGameDetailToCache(_ detail: GameDetail) async {
+    private func saveGameDetailToCache(_ detail: GameDetail) {
         Logger.database.info("Saving game detail to cache for id: \(detail.id)")
         
         // Capturamos el id en una variable local para usarlo en el predicado

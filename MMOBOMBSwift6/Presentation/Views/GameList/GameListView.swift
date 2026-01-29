@@ -11,20 +11,14 @@ import OSLog
 
 /// Main view showing the list of games
 /// Includes search, pull-to-refresh, and navigation to details
-/// Uses MV-R architecture: obtains the Repository from the Environment and creates its local Store
+/// MEJORA: Usa store COMPARTIDO del Environment para preservar estado entre navegaciones
 struct GamesListView: View {
     
     // MARK: - Environment
     
-    /// Repositorio PROTOCOLO inyectado globalmente desde el App
-    /// MEJORA: Usamos el protocolo en lugar de la implementación concreta
-    @Environment(\.gameRepository) private var repository
-    
-    // MARK: - State
-    
-    /// Store LOCAL de esta vista
-    /// Se crea cuando la vista aparece y se destruye cuando desaparece
-    @State private var store: GamesListStore?
+    /// Store COMPARTIDO inyectado desde el App
+    /// MEJORA: Preserva scroll position, búsqueda y datos entre navegaciones
+    @Environment(\.gamesListStore) private var store
     
     // MARK: - Body
     
@@ -34,26 +28,15 @@ struct GamesListView: View {
                 if let store = store {
                     contentView(store: store)
                 } else {
-                    // Mientras se inicializa el store
+                    // Mientras se inicializa el store compartido en App
                     LoadingView(message: "Inicializando...")
                 }
             }
             .navigationTitle("Juegos")
             .navigationBarTitleDisplayMode(.large)
         }
-        .task {
-            // Inicializamos el store LOCAL con el repositorio del Environment
-            // Esto solo ocurre una vez cuando la vista aparece
-            if store == nil, let repository = repository {
-                Logger.ui.info("Initializing GamesListView store")
-                
-                // Creamos el store local inyectándole el repositorio (protocolo)
-                store = GamesListStore(repository: repository)
-                
-                // Cargamos los juegos inicialmente
-                await store?.loadGames()
-            }
-        }
+        // Ya no necesitamos .task para crear el store
+        // El store se crea e inicializa en MMOBOMBSwift6App
     }
     
     // MARK: - Content View

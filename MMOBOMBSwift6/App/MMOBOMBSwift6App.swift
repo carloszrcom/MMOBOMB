@@ -10,7 +10,7 @@ import SwiftData
 import OSLog
 
 /// Punto de entrada principal de la aplicación
-/// Configura SwiftData y el repositorio compartido usando arquitectura MV-R
+/// Configura SwiftData, el repositorio compartido y stores globales usando arquitectura MV-R
 @main
 struct MMOBOMBSwift6App: App {
     
@@ -23,6 +23,11 @@ struct MMOBOMBSwift6App: App {
     /// IMPORTANTE: Usamos el PROTOCOLO (no la implementación concreta)
     /// Esto permite inyectar mocks en tests y cumple con SOLID
     private let gameRepository: GameRepositoryProtocol
+    
+    /// Store compartido para la lista de juegos (NUEVO)
+    /// Preserva estado entre navegaciones (scroll, búsqueda, datos cargados)
+    /// Se inicializa una vez y vive durante toda la sesión de la app
+    @State private var gamesListStore: GamesListStore?
     
     // MARK: - Initialization
     
@@ -60,6 +65,18 @@ struct MMOBOMBSwift6App: App {
             MMOBOMBTabView()
                 .modelContainer(modelContainer)
                 .gameRepository(gameRepository)
+                .environment(\.gamesListStore, gamesListStore)  // NUEVO: Store compartido
+                .task {
+                    // Inicializamos el store compartido una sola vez
+                    if gamesListStore == nil {
+                        Logger.ui.info("Initializing shared GamesListStore")
+                        let store = GamesListStore(repository: gameRepository)
+                        gamesListStore = store
+                        
+                        // Cargamos los juegos inicialmente
+                        await store.loadGames()
+                    }
+                }
                 .onAppear {
                     Logger.ui.info("Main view appeared")
                 }

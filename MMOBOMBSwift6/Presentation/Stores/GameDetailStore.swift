@@ -9,11 +9,22 @@ import Foundation
 import OSLog
 
 /// Store que gestiona el estado y lógica de los detalles de un juego
-/// Hereda de BaseStore para reutilizar funcionalidad común
+/// Conforma ObservableStore para reutilizar funcionalidad común
 /// Este store es LOCAL a la vista de detalles
 @MainActor
 @Observable
-final class GameDetailStore: BaseStore<GameDetail> {
+final class GameDetailStore: ObservableStore {
+    
+    // MARK: - ObservableStore Conformance
+    
+    /// Datos actuales (detalle del juego)
+    var data: GameDetail?
+    
+    /// Indica si se está cargando información
+    var isLoading = false
+    
+    /// Error actual si lo hay
+    var error: AppError?
     
     // MARK: - Dependencies
     
@@ -34,23 +45,12 @@ final class GameDetailStore: BaseStore<GameDetail> {
     /// - Parameter repository: Repositorio inyectado desde el Environment (PROTOCOLO)
     init(repository: GameRepositoryProtocol) {
         self.repository = repository
-        super.init()
         Logger.store.info("GameDetailStore initialized")
     }
     
-    // MARK: - Override Methods
+    // MARK: - Public Methods (load/refresh no usados directamente para detalles)
     
-    /// Template method - no usado directamente, se usa loadGameDetail
-    override func load() async {
-        Logger.store.warning("load() called without game ID, use loadGameDetail(id:) instead")
-    }
-    
-    /// Template method para refresh - requiere ID
-    override func refresh() async {
-        Logger.store.warning("refresh() called without game ID, use refresh(id:) instead")
-    }
-    
-    // MARK: - Public Methods
+    // MARK: - Public Methods (load/refresh no usados directamente para detalles)
     
     /// Carga los detalles de un juego específico
     /// - Parameters:

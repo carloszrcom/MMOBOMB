@@ -8,24 +8,32 @@
 import Foundation
 import OSLog
 
-/// Store base genérico que encapsula comportamientos comunes
-/// Reduce duplicación de código entre diferentes stores
-/// @Observable permite a SwiftUI detectar cambios automáticamente
-/// @MainActor garantiza que todas las operaciones se ejecuten en el hilo principal
-@MainActor
-@Observable
-class BaseStore<T> {
+// MARK: - ObservableStore Protocol
+
+/// Protocolo que define el comportamiento común de todos los stores
+/// Usa composición en lugar de herencia para mayor flexibilidad
+/// Los stores que conforman este protocolo deben ser @Observable y @MainActor
+/// AnyObject restringe el protocolo a clases (necesario para @Observable)
+protocol ObservableStore: AnyObject {
     
-    // MARK: - Published State
+    /// Tipo de dato que gestiona el store
+    associatedtype DataType
+    
+    // MARK: - Required Properties
     
     /// Datos actuales del store
-    private(set) var data: T?
+    var data: DataType? { get set }
     
     /// Indica si se está cargando información
-    private(set) var isLoading = false
+    var isLoading: Bool { get set }
     
     /// Error actual si lo hay (tipado)
-    private(set) var error: AppError?
+    var error: AppError? { get set }
+}
+
+// MARK: - Default Implementations
+
+extension ObservableStore {
     
     // MARK: - Computed Properties
     
@@ -49,7 +57,7 @@ class BaseStore<T> {
     /// Limpia el error actual
     func clearError() {
         error = nil
-        Logger.store.debug("Error cleared for \(String(describing: T.self))")
+        Logger.store.debug("Error cleared for \(String(describing: DataType.self))")
     }
     
     /// Establece el estado de loading
@@ -66,28 +74,14 @@ class BaseStore<T> {
     func setError(_ error: Error) {
         self.error = AppError.from(error)
         isLoading = false
-        Logger.store.error("Error set for \(String(describing: T.self)): \(error.localizedDescription)")
+        Logger.store.error("Error set for \(String(describing: DataType.self)): \(error.localizedDescription)")
     }
     
     /// Establece los datos
     /// - Parameter data: Datos a establecer
-    func setData(_ data: T?) {
+    func setData(_ data: DataType?) {
         self.data = data
         isLoading = false
         error = nil
-    }
-    
-    // MARK: - Template Methods
-    
-    /// Template method para cargar datos
-    /// Las subclases deben sobreescribir este método
-    func load() async {
-        fatalError("Subclasses must override load()")
-    }
-    
-    /// Template method para refrescar datos
-    /// Las subclases deben sobreescribir este método
-    func refresh() async {
-        fatalError("Subclasses must override refresh()")
     }
 }

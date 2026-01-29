@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+// MARK: - Repository Environment
+
 /// EnvironmentKey para inyectar el repositorio como protocolo
 /// Permite usar @Environment(\.gameRepository) en las vistas
 private struct GameRepositoryKey: EnvironmentKey {
@@ -30,3 +32,20 @@ extension View {
         environment(\.gameRepository, repository)
     }
 }
+// MARK: - Stores Environment
+
+/// EnvironmentKey para inyectar el store compartido de la lista de juegos
+/// Permite usar @Environment(\.gamesListStore) en las vistas
+private struct GamesListStoreKey: EnvironmentKey {
+    static let defaultValue: GamesListStore? = nil
+}
+
+extension EnvironmentValues {
+    /// Store compartido de la lista de juegos disponible en el Environment
+    /// Se inyecta desde el App para preservar estado entre navegaciones
+    var gamesListStore: GamesListStore? {
+        get { self[GamesListStoreKey.self] }
+        set { self[GamesListStoreKey.self] = newValue }
+    }
+}
+

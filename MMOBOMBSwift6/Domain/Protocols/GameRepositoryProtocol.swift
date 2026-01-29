@@ -17,12 +17,14 @@ protocol GameRepositoryProtocol: Sendable {
     /// Primero intenta desde cache, si no hay o está expirado, obtiene de la API
     /// - Parameter forceRefresh: Si es true, ignora el cache y obtiene datos frescos
     /// - Returns: Array de modelos Game
-    func fetchGames(forceRefresh: Bool) async throws -> [Game]
+    /// - Throws: AppError con el tipo específico de error ocurrido
+    func fetchGames(forceRefresh: Bool) async throws(AppError) -> [Game]
     
     /// Obtiene los detalles de un juego específico
     /// - Parameters:
     ///   - id: Identificador del juego
     ///   - forceRefresh: Si es true, ignora el cache
     /// - Returns: Modelo GameDetail con toda la información
-    func fetchGameDetail(id: Int, forceRefresh: Bool) async throws -> GameDetail
+    /// - Throws: AppError con el tipo específico de error ocurrido
+    func fetchGameDetail(id: Int, forceRefresh: Bool) async throws(AppError) -> GameDetail
 }

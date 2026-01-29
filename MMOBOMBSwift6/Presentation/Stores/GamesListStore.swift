@@ -10,12 +10,23 @@ import SwiftData
 import OSLog
 
 /// Store que gestiona el estado y lógica del listado de juegos
-/// Hereda de BaseStore para reutilizar funcionalidad común
+/// Conforma ObservableStore para reutilizar funcionalidad común
 /// @Observable hace que SwiftUI detecte automáticamente cambios
 /// @MainActor garantiza que todas las operaciones se ejecuten en el hilo principal
 @MainActor
 @Observable
-final class GamesListStore: BaseStore<[Game]> {
+final class GamesListStore: ObservableStore {
+    
+    // MARK: - ObservableStore Conformance
+    
+    /// Datos actuales (lista de juegos)
+    var data: [Game]?
+    
+    /// Indica si se está cargando información
+    var isLoading = false
+    
+    /// Error actual si lo hay
+    var error: AppError?
     
     // MARK: - Properties
     
@@ -58,19 +69,18 @@ final class GamesListStore: BaseStore<[Game]> {
     /// - Parameter repository: Repositorio inyectado desde el Environment (PROTOCOLO)
     init(repository: GameRepositoryProtocol) {
         self.repository = repository
-        super.init()
         Logger.store.info("GamesListStore initialized")
     }
     
-    // MARK: - Override Methods
+    // MARK: - Public Methods
     
-    /// Carga la lista de juegos
-    override func load() async {
+    /// Carga la lista de juegos (usado por patrón load/refresh)
+    func load() async {
         await loadGames(forceRefresh: false)
     }
     
-    /// Refresca la lista de juegos
-    override func refresh() async {
+    /// Refresca la lista de juegos (usado por pull-to-refresh)
+    func refresh() async {
         await loadGames(forceRefresh: true)
     }
     
