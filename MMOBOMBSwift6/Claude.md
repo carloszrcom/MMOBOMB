@@ -376,7 +376,140 @@ ContentView
 - .environment() para compartir routers modales
 
 
-## Stores
+## Imágenes Remotas
+
+**OBLIGATORIO implementar caché persistente** para imágenes que vienen de servicios remotos.
+
+### Principios fundamentales:
+
+1. **NO usar `AsyncImage` directamente** - No cachea entre sesiones
+2. **Implementar ImageCacheManager** con caché en disco + memoria
+3. **Persistir imágenes en `FileManager.cachesDirectory`**
+4. **Estrategia de 3 niveles**: Memoria → Disco → Red
+
+### Arquitectura Requerida
+
+#### ImageCacheManager (Singleton)
+```swift
+@MainActor
+final class ImageCacheManager {
+    static let shared = ImageCacheManager()
+    
+    private var memoryCache: [String: UIImage] = [:]
+    private let cacheDirectory: URL
+    
+    func getImage(from urlString: String) async -> UIImage? {
+        // 1. Buscar en memoria (rápido)
+        if let cached = memoryCache[urlString] { return cached }
+        
+        // 2. Buscar en disco (offline-capable)
+        if let diskImage = loadFromDisk(urlString: urlString) {
+            memoryCache[urlString] = diskImage
+            return diskImage
+        }
+        
+        // 3. Descargar y guardar
+        guard let downloaded = await downloadImage(from: urlString) else { return nil }
+        memoryCache[urlString] = downloaded
+        saveToDisk(image: downloaded, urlString: urlString)
+        return downloaded
+    }
+}
+```
+
+#### AsyncImageView (Componente Reutilizable)
+
+```swift
+struct AsyncImageView: View {
+    let url: String
+    @State private var loadedImage: UIImage?
+    @State private var isLoading = true
+    
+    var body: some View {
+        Group {
+            if isLoading {
+                ProgressView()
+            } else if let loadedImage {
+                Image(uiImage: loadedImage)
+                    .resizable()
+            } else {
+                Image(systemName: "photo.fill")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .task {
+            loadedImage = await ImageCacheManager.shared.getImage(from: url)
+            isLoading = false
+        }
+    }
+}
+```
+
+### Detalles de Implementación
+
+**Directorio de caché:**
+```swift
+let paths = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
+cacheDirectory = paths[0].appendingPathComponent("ImageCache", isDirectory: true)
+```
+
+**Nombre de archivo único:**
+```swift
+private func fileName(for urlString: String) -> String {
+    "\(abs(urlString.hashValue)).jpg"
+}
+```
+
+**Guardar en disco:**
+```swift
+private func saveToDisk(image: UIImage, urlString: String) {
+    let fileURL = cacheDirectory.appendingPathComponent(fileName(for: urlString))
+    guard let data = image.jpegData(compressionQuality: 0.8) else { return }
+    try? data.write(to: fileURL)
+}
+```
+
+**Descargar con URLSession:**
+```swift
+private func downloadImage(from urlString: String) async -> UIImage? {
+    guard let url = URL(string: urlString) else { return nil }
+    let (data, _) = try? await URLSession.shared.data(from: url)
+    return data.flatMap { UIImage(data: $0) }
+}
+```
+
+### Alternativas Profesionales
+
+Para proyectos grandes considerar librerías especializadas:
+- **Kingfisher** (más popular, altamente optimizada)
+- **Nuke** (moderna, excelente performance)
+- **SDWebImage** (estable, legacy-friendly)
+
+### Ventajas del Caché Persistente
+
+- ✅ **Funciona offline**: Imágenes disponibles sin internet
+- ✅ **Mejora UX**: No re-descargas en cada sesión
+- ✅ **Ahorra datos**: Reduce consumo de red
+- ✅ **Performance**: Caché en memoria = carga instantánea
+
+### Logging Recomendado
+
+```swift
+Logger.network.debug("Image loaded from memory cache")
+Logger.network.debug("Image loaded from disk cache")
+Logger.network.info("Downloading image: \(urlString)")
+Logger.network.error("Failed to download image")
+```
+
+### NO hacer:
+
+- ❌ Usar `AsyncImage` sin wrapper de caché
+- ❌ Guardar imágenes en `Documents` (usar `Caches`)
+- ❌ Cachear solo en memoria (se pierde al cerrar app)
+- ❌ Descargar imágenes de forma síncrona
+
+
+
 
 
 

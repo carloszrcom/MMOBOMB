@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-/// Componente reutilizable para cargar imágenes de forma asíncrona
+/// Componente reutilizable para cargar imágenes de forma asíncrona con caché persistente
 /// Muestra un placeholder mientras carga y maneja errores
+/// Las imágenes se guardan en disco y están disponibles sin conexión
 struct AsyncImageView: View {
     
     // MARK: - Properties
@@ -18,6 +19,10 @@ struct AsyncImageView: View {
     
     /// Tamaño del placeholder
     let placeholderSize: CGFloat
+    
+    /// Estado de carga de la imagen
+    @State private var loadedImage: UIImage?
+    @State private var isLoading = true
     
     // MARK: - Initialization
     
@@ -29,32 +34,32 @@ struct AsyncImageView: View {
     // MARK: - Body
     
     var body: some View {
-        // AsyncImage es el componente nativo de SwiftUI para imágenes remotas
-        AsyncImage(url: URL(string: url)) { phase in
-            switch phase {
-            case .empty:
+        Group {
+            if isLoading {
                 // Mientras carga, mostramos un indicador de progreso
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
-            case .success(let image):
-                // Imagen cargada correctamente
-                image
+            } else if let loadedImage {
+                // Imagen cargada correctamente (desde caché o internet)
+                Image(uiImage: loadedImage)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                 
-            case .failure:
-                // Error al cargar la imagen
+            } else {
+                // Error al cargar la imagen (no hay caché ni internet)
                 Image(systemName: "photo.fill")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: placeholderSize, height: placeholderSize)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                
-            @unknown default:
-                EmptyView()
             }
+        }
+        .task {
+            // Intentar cargar la imagen desde caché o internet
+            loadedImage = await ImageCacheManager.shared.getImage(from: url)
+            isLoading = false
         }
     }
 }
