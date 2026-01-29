@@ -119,17 +119,3 @@ struct GamesListView: View {
         }
     }
 }
-
-// MARK: - Preview
-
-//#Preview {
-//    @Previewable @State var container = PersistenceManager.preview
-//    @Previewable @State var repository: GameRepositoryProtocol = GameRepositoryImpl(
-//        modelContext: container.mainContext
-//    )
-//    
-//    GamesListView()
-//        .modelContainer(container)
-//        .gameRepository(repository)
-//}
-

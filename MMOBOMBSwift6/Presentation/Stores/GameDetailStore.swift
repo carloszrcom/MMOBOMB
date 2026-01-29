@@ -50,8 +50,6 @@ final class GameDetailStore: ObservableStore {
     
     // MARK: - Public Methods (load/refresh no usados directamente para detalles)
     
-    // MARK: - Public Methods (load/refresh no usados directamente para detalles)
-    
     /// Carga los detalles de un juego específico
     /// - Parameters:
     ///   - id: Identificador del juego
